@@ -104,7 +104,7 @@ contract SubscriptionWithAdmin {
 
         uint256 oldLimit = daoLogic.MAX_ACTIVE_PROPOSALS(); // Ambil nilai lama dari DAOLogic
         daoLogic.updateMaxActiveProposals(newLimit); // Perbarui nilai di DAOLogic
-        emit MaxActiveProposalsUpdated(oldLimit, newLimit); // Emit event untuk mencatat perubahagn
+        emit MaxActiveProposalsUpdated(oldLimit, newLimit); 
     }
 
     function withdrawAdminFee() external onlyOwner {
