@@ -16,7 +16,7 @@ contract DAOLogic {
 
     uint256 public nextProposalId;
     uint256 public activeProposals;
-    uint256 public constant MAX_ACTIVE_PROPOSALS = 10;
+    uint256 public  MAX_ACTIVE_PROPOSALS = 10;
 
     mapping(uint256 => Proposal) public proposals;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
@@ -108,4 +108,19 @@ contract DAOLogic {
 
         delete proposals[proposalId];
     }
+        function emergencyCloseProposal(uint256 proposalId) external onlySubscriptionContract {
+        Proposal storage proposal = proposals[proposalId];
+        require(proposal.open, "Proposal is already closed");
+
+        proposal.open = false;
+        activeProposals--;
+
+        emit ProposalClosed(proposalId, false);
+    }
+
+    function updateMaxActiveProposals(uint256 newLimit) external onlySubscriptionContract {
+        require(newLimit >= 1, "Must allow at least 1 active proposal");
+        MAX_ACTIVE_PROPOSALS = newLimit;
+    }
+
 }
