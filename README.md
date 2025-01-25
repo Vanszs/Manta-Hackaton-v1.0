@@ -1,4 +1,4 @@
-# Arcalis - A Decentralized AI Platform
+# Arcalis - Decentralized AI Platform
 ![Arcalis Logo](ARCALISAI.png "Logo Arcalis")
 
 Arcalis is a groundbreaking decentralized platform where users can interact with an **AI-powered chatbot** and actively engage in governance through a **Decentralized Autonomous Organization (DAO)**. Built on **blockchain technology**, Arcalis ensures secure and transparent transactions powered by cryptocurrency. The platform also integrates a unique **tiered subscription model** that grants access to various levels of service, along with voting and proposal features, enabling users to shape the future of the platform.
