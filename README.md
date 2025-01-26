@@ -27,7 +27,8 @@ Arcalis offers a flexible subscription model with **four distinct packages**, ea
 
 ## DAO Governance: Community-Driven Decisions
 
-Arcalis operates on a **decentralized governance model**, where every user has a voice in shaping the platform's future. Through the DAO, members can vote on changes, and directly influence the platform's growth.
+At Arcalis, every important decision is made collectively by the community.  
+Proposals for platform updates, new features, and social initiatives start with the **platform team**, but the power to approve or reject lies with **you**, the members.
 
 - **Proposal System:**  
   All users can submit proposals for new features or changes. The proposals are voted on by the community, and voting power is determined by subscription levels, ensuring greater influence for higher-tier members.
