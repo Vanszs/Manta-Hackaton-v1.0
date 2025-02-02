@@ -1,47 +1,54 @@
 import express from 'express';
-import { HfInference } from '@huggingface/inference';
-import path from 'path';
-import bodyParser from 'body-parser';
+import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
+import path from 'path';
 import { fileURLToPath } from 'url';
+
 dotenv.config();
 
+// Definisikan __dirname untuk ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
-const hfApiKey = process.env.HUGGINGFACE_API_KEY;
-const hfClient = new HfInference(hfApiKey);
 
-const models = {
-  'DeepSeek-R1': 'deepseek-ai/DeepSeek-R1',
-  'DeepSeek-V3': 'deepseek-ai/DeepSeek-V3',
-  'DeepSeek-R1-Distill-Qwen-32B': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
-  'gpt2' : 'openai-community/gpt2'
+// Inisialisasi klien OpenAI dengan baseURL OpenRouter
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY
+});
+
+// Mapping model dari front-end ke model OpenRouter
+const modelMapping = {
+  "GPT-3.5 Turbo": "openai/gpt-3.5-turbo",
+  "Qwen Turbo": "qwen/qwen-turbo",
+  "DeepSeek R1 Free": "deepseek/deepseek-r1:free",
+  "Liquid LFM-7B": "liquid/lfm-7b"
 };
 
+const defaultModelKey = "GPT-3.5 Turbo";
+
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.json());
 
 app.post('/api/chat', async (req, res) => {
-  const { inputText, model } = req.body;
-  const selectedModel = models[model] || models['DeepSeek-R1'];
-
+  const { messages, model } = req.body;
+  const selectedModelKey = model in modelMapping ? model : defaultModelKey;
+  const chosenModel = modelMapping[selectedModelKey];
+  
   try {
-    const chatCompletion = await hfClient.chatCompletion({
-      model: selectedModel,
-      messages: [
-        { role: "user", content: inputText }
-      ],
-      provider: "hf-inference",
+    const completion = await openai.chat.completions.create({
+      model: chosenModel,
+      messages: messages,
       max_tokens: 500
     });
     
-    res.json({ response: chatCompletion.choices[0].message });
+    // Kirim properti "content" dari pesan respons
+    res.json({ response: completion.choices[0].message.content });
   } catch (error) {
-    console.error('Error calling Hugging Face API:', error);
-    res.status(500).json({ response: 'Terjadi kesalahan. Pastikan API key dan model valid.' });
+    console.error("Error calling OpenRouter API:", error);
+    res.status(500).json({ error: "Error calling OpenRouter API. Pastikan API key dan model valid." });
   }
 });
 
