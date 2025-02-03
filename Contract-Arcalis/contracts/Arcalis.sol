@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Alcalis {
+contract Arcalis {
     address public contractOwner;
     uint256 public level2Price = 0.0002 ether;
     uint256 public level3Price = 0.0003 ether;
