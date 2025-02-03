@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SubscriptionDAO {
+contract Alcalis {
     address public contractOwner;
-    uint256 public level2Price = 0.02 ether;
-    uint256 public level3Price = 0.03 ether;
-    uint256 public level4Price = 0.04 ether;
+    uint256 public level2Price = 0.0002 ether;
+    uint256 public level3Price = 0.0003 ether;
+    uint256 public level4Price = 0.0004 ether;
     uint256 public contractSharePercentage = 10; 
 
     address[] public coOwners;
@@ -37,6 +37,8 @@ contract SubscriptionDAO {
     event CoOwnerAdded(address indexed coOwner);
     event CoOwnerRemoved(address indexed coOwner);
     event ContractSharePercentageUpdated(uint256 newPercentage);
+    event EmergencyProposalCreated(uint256 indexed proposalId, string description, uint256 durationHours);
+
 
     constructor() {
         contractOwner = msg.sender;
@@ -48,6 +50,27 @@ contract SubscriptionDAO {
             "Only owner or co-owner can perform this action"
         );
         _;
+    }
+     modifier onlyOwnerCoOwnerOrLevel4() {
+        require(
+            msg.sender == contractOwner || isCoOwner(msg.sender) || userLevel[msg.sender] == 4,
+            "Only owner, co-owner, or Level 4 can perform this action"
+        );
+        _;
+    }
+    function createEmergencyVote(string memory description, uint256 durationHours)
+        public
+        onlyOwnerOrCoOwner
+    {
+        require(durationHours > 0, "Duration must be at least 1 hour");
+        require(getOpenProposalsCount() < MAX_OPEN_PROPOSALS, "Maximum open proposals reached");
+
+        Proposal storage newProposal = proposals.push();
+        newProposal.creator = msg.sender;
+        newProposal.description = description;
+        newProposal.endTime = block.timestamp + (durationHours * 1 hours);
+
+        emit EmergencyProposalCreated(proposals.length - 1, description, durationHours);
     }
 
     function purchasePackage(uint256 level) public payable {
@@ -101,7 +124,7 @@ function updateContractSharePercentage(uint256 newPercentage) public onlyOwner {
 
     function createProposal(string memory description, uint256 durationDays)
         public
-        onlyOwnerOrCoOwner
+        onlyOwnerCoOwnerOrLevel4
     {
         require(durationDays > 0, "Duration must be at least 1 day");
         require(getOpenProposalsCount() < MAX_OPEN_PROPOSALS, "Maximum open proposals reached");
@@ -204,9 +227,7 @@ function closeProposal(uint256 proposalId) public onlyOwnerOrCoOwner {
     Proposal storage proposal = proposals[proposalId];
     require(!proposal.executed, "Proposal already executed");
     require(block.timestamp < proposal.endTime, "Voting period has already ended");
-
     proposal.executed = true;
-
     emit ProposalExecuted(proposalId);
 }
 }

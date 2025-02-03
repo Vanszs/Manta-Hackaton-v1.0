@@ -1,5 +1,5 @@
-const SubscriptionDAO = artifacts.require("SubscriptionDAO");
+const Alcalis = artifacts.require("Alcalis");
 
 module.exports = function (deployer) {
-    deployer.deploy(SubscriptionDAO);
+    deployer.deploy(Alcalis);
 };
