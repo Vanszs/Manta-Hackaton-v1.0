@@ -7,8 +7,6 @@ const typingIndicator = document.getElementById('typingIndicator');
 let isGenerating = false;
 let conversationHistory = [];
 
-// Fungsi untuk memformat pesan agar code snippet markdown (```)
-// diubah menjadi elemen <pre><code>
 function formatMessage(text) {
   return text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
     return `<pre><code class="language-${lang || ''}">${code}</code></pre>`;
@@ -18,9 +16,9 @@ function formatMessage(text) {
 async function sendMessage() {
   if (isGenerating || !userInput.value.trim()) return;
   
-  const userMessage = { role: "user", content: userInput.value.trim() };
+  const userMessage = { role: "user", content: [{ type: "text", text: userInput.value.trim() }] };
   conversationHistory.push(userMessage);
-  addMessage(userMessage.content, true);
+  addMessage(userMessage.content[0].text, true);
   userInput.value = '';
   
   isGenerating = true;
@@ -28,7 +26,7 @@ async function sendMessage() {
   window.scrollTo(0, document.body.scrollHeight);
   
   try {
-    // Kirim seluruh riwayat percakapan untuk konteks
+
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,9 +40,9 @@ async function sendMessage() {
     const data = await response.json();
     if (data.error) throw new Error(data.error);
     
-    const botMessage = { role: "assistant", content: data.response };
+    const botMessage = { role: "assistant", content: [{ type: "text", text: data.content }] };
     conversationHistory.push(botMessage);
-    addMessage(botMessage.content, false);
+    addMessage(botMessage.content[0].text, false);
   } catch (error) {
     addMessage(`Error: ${error.message}`, false);
   } finally {
@@ -56,15 +54,12 @@ async function sendMessage() {
 function addMessage(text, isUser) {
   const messageDiv = document.createElement('div');
   messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-  
-  // Gunakan innerHTML untuk merender HTML code snippet
+
   messageDiv.innerHTML = formatMessage(text);
   
   chatMessages.appendChild(messageDiv);
   messageDiv.scrollIntoView({ behavior: 'smooth' });
 }
-
-// Event listeners
 sendButton.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -73,8 +68,41 @@ userInput.addEventListener('keypress', (e) => {
   }
 });
 
-// Auto-resize input
 userInput.addEventListener('input', () => {
   userInput.style.height = 'auto';
   userInput.style.height = `${userInput.scrollHeight}px`;
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const debugTierSelect = document.createElement('select');
+  debugTierSelect.id = 'debugTierSelect';
+  debugTierSelect.style.position = 'absolute';
+  debugTierSelect.style.top = '10px';
+  debugTierSelect.style.right = '10px';
+  debugTierSelect.style.zIndex = '1000';
+
+  const tiers = ['Explorer', 'Scholar', 'Innovator', 'Visionary'];
+  tiers.forEach(tier => {
+    const option = document.createElement('option');
+    option.value = tier;
+    option.textContent = tier;
+    debugTierSelect.appendChild(option);
+  });
+
+  debugTierSelect.addEventListener('change', async () => {
+    const selectedTier = debugTierSelect.value;
+    try {
+      const response = await fetch('/debug/set-tier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'testUser', tier: selectedTier })
+      });
+      const data = await response.json();
+      alert(data.status);
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+  });
+
+  document.body.appendChild(debugTierSelect);
 });
