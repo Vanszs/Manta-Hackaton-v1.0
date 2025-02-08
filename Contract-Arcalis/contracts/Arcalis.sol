@@ -104,8 +104,10 @@ event ProposalCreated(
     }
 
     
-
-function createProposalLevel4(string memory title, string memory description) public {
+function createProposalLevel4(string memory title, string memory description) 
+    public 
+    returns (uint256) 
+{
     require(userLevel[msg.sender] == 4, "Level 4 required");
     require(openProposalsCount < MAX_OPEN_PROPOSALS, "Max proposals reached");
     require(isSubscriptionActiveForUser(msg.sender), "Subscription expired");
@@ -120,13 +122,12 @@ function createProposalLevel4(string memory title, string memory description) pu
     require(validCount < 2, "Max 2/month");
 
     // Create new proposal
-    Proposal storage newProposal = proposals.push(); // This adds a new empty Proposal
+    Proposal storage newProposal = proposals.push();
     newProposal.creator = msg.sender;
     newProposal.title = title;
     newProposal.description = description;
     newProposal.endTime = block.timestamp + DEFAULT_PROPOSAL_DURATION;
 
-    // Initialize votes and executed flag (already 0 and false by default)
     newProposal.votesFor = 0;
     newProposal.votesAgainst = 0;
     newProposal.executed = false;
@@ -148,13 +149,15 @@ function createProposalLevel4(string memory title, string memory description) pu
         block.timestamp + DEFAULT_PROPOSAL_DURATION,
         false
     );
+
+    return newProposalId; // Mengembalikan ID proposal yang baru dibuat
 }
 
 function createEmergencyVote(
     string memory title,
     string memory description,
     uint256 durationHours
-) public onlyOwnerOrCoOwner {
+) public onlyOwnerOrCoOwner returns (uint256) {  // Menambahkan return type
     require(durationHours > 0 && durationHours <= 720, "1-720 hours");
 
     Proposal storage newProposal = proposals.push();
@@ -176,7 +179,10 @@ function createEmergencyVote(
         block.timestamp + (durationHours * 1 hours),
         false
     );
+
+    return newProposalId; // Mengembalikan ID proposal yang baru dibuat
 }
+
 
 
     function purchasePackage(uint256 level) public payable {
@@ -276,15 +282,6 @@ function withdrawRemainingBalance() public onlyOwner {
     uint256 amount = address(this).balance - contractShareBalance;
     payable(contractOwner).transfer(amount);
 }
-
-    // Configuration functions
-    function updateContractSharePercentage(uint256 newPercentage) public onlyOwner {
-        require(newPercentage <= 100, "Max 100%");
-        contractSharePercentage = newPercentage;
-        emit ContractSharePercentageUpdated(newPercentage);
-    }
-
-// Modifikasi fungsi getAllProposals
 function getAllProposals() public view returns (ProposalDetail[] memory) {
     ProposalDetail[] memory allProposals = new ProposalDetail[](proposals.length);
     
@@ -303,6 +300,14 @@ function getAllProposals() public view returns (ProposalDetail[] memory) {
     }
     return allProposals;
 }
+    // Configuration functions
+    function updateContractSharePercentage(uint256 newPercentage) public onlyOwner {
+        require(newPercentage <= 100, "Max 100%");
+        contractSharePercentage = newPercentage;
+        emit ContractSharePercentageUpdated(newPercentage);
+    }
+
+
 
     // Utility functions
     function getPackagePrice(uint256 level) public view returns (uint256) {
@@ -336,20 +341,28 @@ function getAllProposals() public view returns (ProposalDetail[] memory) {
         blacklist[user] = false;
         emit Unblacklisted(user);
     }
-
-    // Additional view functions
-function getProposalById(uint256 proposalId) public view returns (ProposalDetail memory) {
+    function getProposal(uint256 proposalId) public view returns (
+    address creator,
+    string memory title,
+    string memory description,
+    uint256 votesFor,
+    uint256 votesAgainst,
+    uint256 endTime,
+    bool executed
+    ) {
     require(proposalId < proposals.length, "Invalid proposal ID");
-    Proposal storage p = proposals[proposalId];
-    return ProposalDetail({
-        id: proposalId,
-        creator: p.creator,
-        title: p.title,
-        description: p.description,
-        votesFor: p.votesFor,
-        votesAgainst: p.votesAgainst,
-        endTime: p.endTime,
-        executed: p.executed
-    });
+    Proposal storage proposal = proposals[proposalId];
+
+    return (
+        proposal.creator,
+        proposal.title,
+        proposal.description,
+        proposal.votesFor,
+        proposal.votesAgainst,
+        proposal.endTime,
+        proposal.executed
+    );
 }
+
+
 }
