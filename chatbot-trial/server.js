@@ -98,7 +98,8 @@ const TIER_CONFIG = {
   'Explorer': {
     modelAccess: {
       'deepseek/deepseek-r1:free': { dailyLimit: Infinity },
-      'minimax/minimax-01': { dailyLimit: 20 }
+      'minimax/minimax-01': { dailyLimit: 20 },
+      'qwen/qwen-turbo': 10,
     },
     features: {
       reasoning: true,
@@ -119,7 +120,11 @@ const TIER_CONFIG = {
     modelAccess: {
       'deepseek/deepseek-r1:free': Infinity,
       'qwen/qwen-turbo': 100,
-      'minimax/minimax-01': 100
+      'minimax/minimax-01': 100,
+      'google/gemini-2.0-flash-thinking-exp:free': 20,
+      'liquid/lfm-7b': 20,
+
+
     },
     features: {
       reasoning: true,
@@ -142,7 +147,8 @@ const TIER_CONFIG = {
       'qwen/qwen-turbo': 500,
       'liquid/lfm-7b': 500,
       'minimax/minimax-01': 500,
-      'google/gemini-2.0-flash-thinking-exp:free': 500
+      'google/gemini-2.0-flash-thinking-exp:free': 500,
+      'microsoft/phi-4': 30
     },
     features: {
       reasoning: true,
