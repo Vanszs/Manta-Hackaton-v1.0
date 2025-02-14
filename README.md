@@ -1,4 +1,3 @@
-```markdown
 # 🚀 Arcalis - Decentralized AI Powerhouse  
 ![Arcalis Ecosystem](ARCALISAI.png)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -156,5 +155,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 </div>
 
-*"Democratizing AI - One Block at a Time"* 🔗🧠  
-```
